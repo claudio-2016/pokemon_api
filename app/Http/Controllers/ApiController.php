@@ -108,8 +108,12 @@ class ApiController extends Controller
             }
 
             $carta = Carta::where(['user_id' => auth()->user()->id, 'id' => $dataRequest['id']])->get();
+            
+            if(!is_null($carta) && count($carta) == 1) {
+                return self::controlEstadoCartas(200, 'Consulta exitosa.', $carta);
+            }
 
-            return self::controlEstadoCartas(200, 'Consulta exitosa.', $carta);
+            return self::controlEstadoCartas(200, 'Id o carta inexistente.');
 
         } catch (Exception $e) {
             return self::controlEstadoCartas(500, 'Error al realizar la consulta.');
@@ -173,18 +177,23 @@ class ApiController extends Controller
             }
 
             $carta = Carta::where(['user_id' => auth()->user()->id, 'id' => $dataRequest['id']])->first();
-            $carta->name = $dataRequest['name'];
-            $carta->hp = $dataRequest['hp'];
-            $carta->es_primera_edicion = $expansion->es_primera_edicion;
-            $carta->expansion = $expansion->tipo_expansion;
-            $carta->tipo = $dataRequest['tipo'];
-            $carta->rareza = $dataRequest['rareza'];
-            $carta->precio = $dataRequest['precio'];
-            $carta->imagen_online = $dataRequest['imagen_online'];
+            
+            if(!is_null($carta) && count($carta) == 1) {
+                $carta->name = $dataRequest['name'];
+                $carta->hp = $dataRequest['hp'];
+                $carta->es_primera_edicion = $expansion->es_primera_edicion;
+                $carta->expansion = $expansion->tipo_expansion;
+                $carta->tipo = $dataRequest['tipo'];
+                $carta->rareza = $dataRequest['rareza'];
+                $carta->precio = $dataRequest['precio'];
+                $carta->imagen_online = $dataRequest['imagen_online'];
 
-            $carta->save();
+                $carta->save();
 
-            return self::controlEstadoCartas(200, 'Consulta exitosa.');
+                return self::controlEstadoCartas(200, 'Consulta exitosa.');
+            }
+            
+            return self::controlEstadoCartas(200, 'Id o carta inexistente.');
 
         } catch (Exception $e) {
             return self::controlEstadoCartas(500, 'Error al realizar la consulta.');
@@ -208,7 +217,7 @@ class ApiController extends Controller
                 return self::controlEstadoCartas(200, 'Elimacion exitosa.');
             }
 
-            return self::controlEstadoCartas(616, "Error al eliminar.");
+            return self::controlEstadoCartas(200, 'Id o carta inexistente.');
 
         } catch (Exception $e) {
             return self::controlEstadoCartas(500, 'Error al realizar la consulta.');
